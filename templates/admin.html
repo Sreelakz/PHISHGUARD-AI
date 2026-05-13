@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard AI — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0b0b14; --bg2:#13131f; --bg3:#1a1a2a;
+    --accent:#a855f7; --accent2:#f43f5e; --accent3:#bef264; --warn:#fbbf24;
+    --purple:#c084fc;
+    --text:#e2e8f0; --text-dim:#64748b; --border:rgba(168,85,247,0.18);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(11,11,20,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  .nav-logo{font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--accent);letter-spacing:2px;}
+  .nav-logo span{color:var(--accent2);}
+  .nav-links{display:flex;gap:2rem;}
+  .nav-links a{color:var(--text-dim);text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;transition:color 0.2s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--accent);}
+
+  .page{position:relative;z-index:1;padding:80px 2rem 3rem;max-width:1400px;margin:0 auto;}
+
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
+  .page-title{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;}
+  .page-title span{color:var(--accent);}
+
+  .action-btns{display:flex;gap:0.75rem;}
+  .btn{padding:0.5rem 1.2rem;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border:1px solid;}
+  .btn-accent{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+  .btn-accent:hover{background:#b968f9;box-shadow:0 0 20px rgba(168,85,247,0.35);}
+  .btn-outline{background:transparent;color:var(--accent);border-color:var(--border);}
+  .btn-outline:hover{background:rgba(168,85,247,0.08);}
+  .btn-danger{background:transparent;color:var(--accent2);border-color:rgba(244,63,94,0.45);}
+  .btn-danger:hover{background:rgba(244,63,94,0.1);}
+
+  .section-title{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+  .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem;text-align:center;position:relative;overflow:hidden;}
+  .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+  .stat-card.c1::after{background:var(--accent);}
+  .stat-card.c2::after{background:var(--accent2);}
+  .stat-card.c3::after{background:var(--accent3);}
+  .stat-card.c4::after{background:var(--warn);}
+  .stat-card.c5::after{background:var(--purple);}
+  .stat-num{font-family:'Rajdhani',sans-serif;font-size:2.5rem;font-weight:700;color:var(--text);}
+  .stat-lbl{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:2px;margin-top:0.2rem;}
+
+  .api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:2rem;}
+  .api-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem;position:relative;}
+  .api-card.online{border-left:3px solid var(--accent3);}
+  .api-card.offline{border-left:3px solid var(--accent2);}
+  .api-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
+  .api-name{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:1px;}
+  .api-status{padding:0.2rem 0.6rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:1px;}
+  .api-status.online{background:rgba(190,242,100,0.14);color:var(--accent3);border:1px solid rgba(190,242,100,0.35);}
+  .api-status.offline{background:rgba(244,63,94,0.14);color:var(--accent2);border:1px solid rgba(244,63,94,0.35);}
+  .api-detail{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);margin:0.25rem 0;display:flex;justify-content:space-between;}
+  .api-detail span:last-child{color:var(--text);}
+
+  .threats-table{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:2rem;}
+  .threats-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .threat-row{display:grid;grid-template-columns:2fr auto auto;gap:1rem;align-items:center;padding:0.75rem 1.5rem;border-bottom:1px solid rgba(168,85,247,0.06);}
+  .threat-row:last-child{border-bottom:none;}
+  .threat-row:hover{background:rgba(244,63,94,0.04);}
+  .threat-url{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--accent2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .threat-score{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;}
+  .threat-badge{padding:0.2rem 0.6rem;background:rgba(244,63,94,0.16);border:1px solid rgba(244,63,94,0.35);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#fda4af;}
+
+  .filter-row{display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;}
+  .filter-select{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:0.5rem 0.75rem;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.75rem;outline:none;cursor:pointer;}
+  .filter-select:focus{border-color:var(--accent);}
+
+  .log-table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  th{padding:0.6rem 1rem;text-align:left;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:2px;border-bottom:1px solid var(--border);background:var(--bg3);}
+  td{padding:0.65rem 1rem;font-size:0.82rem;border-bottom:1px solid rgba(168,85,247,0.06);}
+  tr:hover td{background:rgba(168,85,247,0.03);}
+  tr:last-child td{border-bottom:none;}
+
+  .pred-badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:1px;}
+  .pred-badge.PHISHING{background:rgba(244,63,94,0.16);color:#fda4af;border:1px solid rgba(244,63,94,0.35);}
+  .pred-badge.LEGITIMATE{background:rgba(190,242,100,0.12);color:#d9f99d;border:1px solid rgba(190,242,100,0.35);}
+  .pred-badge.UNKNOWN{background:rgba(100,116,139,0.18);color:var(--text-dim);}
+
+  .src-pill{display:inline-block;padding:0.15rem 0.45rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:1px;}
+  .src-pill.ml_model{background:rgba(168,85,247,0.12);color:var(--accent);}
+  .src-pill.safe_browsing{background:rgba(244,63,94,0.12);color:var(--accent2);}
+  .src-pill.rule_engine{background:rgba(251,191,36,0.12);color:var(--warn);}
+  .src-pill.virustotal{background:rgba(192,132,252,0.12);color:var(--purple);}
+
+  .level-pill{display:inline-flex;align-items:center;gap:0.3rem;font-family:'Share Tech Mono',monospace;font-size:0.6rem;padding:0.2rem 0.5rem;border-radius:2px;}
+  .level-Critical{background:rgba(244,63,94,0.16);color:#fda4af;}
+  .level-High{background:rgba(251,146,60,0.16);color:#fdba74;}
+  .level-Medium{background:rgba(251,191,36,0.16);color:#fcd34d;}
+  .level-Low{background:rgba(168,85,247,0.16);color:#c4b5fd;}
+  .level-Safe{background:rgba(190,242,100,0.16);color:#d9f99d;}
+
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.5rem;border-top:1px solid var(--border);}
+  .page-info{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);}
+  .page-btns{display:flex;gap:0.5rem;}
+  .page-btn{padding:0.35rem 0.8rem;background:transparent;border:1px solid var(--border);border-radius:2px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:0.65rem;cursor:pointer;transition:all 0.2s;}
+  .page-btn:hover:not(:disabled){color:var(--accent);border-color:var(--accent);}
+  .page-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+  .health-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:2rem;}
+  .modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.5rem;margin-top:0.75rem;}
+  .module-item{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;background:var(--bg3);border:1px solid rgba(190,242,100,0.18);border-radius:2px;}
+  .module-dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);box-shadow:0 0 6px var(--accent3);}
+  .module-name{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--accent3);}
+
+  .toast{position:fixed;bottom:2rem;right:2rem;padding:0.75rem 1.5rem;background:var(--bg2);border:1px solid var(--accent3);border-radius:3px;color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:0.75rem;letter-spacing:1px;transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:200;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.25);border-radius:3px;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">PHISH<span>GUARD</span>.AI</div>
+  <div class="nav-links">
+    <a href="/">Scanner</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/admin" class="active">Admin</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">Admin <span>Control Panel</span></div>
+    <div class="action-btns">
+      <button class="btn btn-danger" onclick="clearVtCache()">🗑 CLEAR VT CACHE</button>
+      <button class="btn btn-outline" onclick="exportLogs()">⬇ EXPORT LOGS</button>
+      <button class="btn btn-accent" onclick="loadAll()">⟳ REFRESH</button>
+    </div>
+  </div>
+
+  <div class="section-title">// API & PIPELINE HEALTH</div>
+  <div class="api-grid" id="apiGrid"></div>
+
+  <div class="health-card">
+    <div class="section-title">// SYSTEM MODULES</div>
+    <div class="modules-grid" id="modulesGrid"></div>
+  </div>
+
+  <div class="section-title">// AGGREGATE STATISTICS</div>
+  <div class="stats-grid">
+    <div class="stat-card c1"><div class="stat-num" id="sTotal">--</div><div class="stat-lbl">TOTAL SCANS</div></div>
+    <div class="stat-card c2"><div class="stat-num" id="sPhishing">--</div><div class="stat-lbl">PHISHING</div></div>
+    <div class="stat-card c3"><div class="stat-num" id="sLegit">--</div><div class="stat-lbl">LEGITIMATE</div></div>
+    <div class="stat-card c4"><div class="stat-num" id="sRate">--</div><div class="stat-lbl">PHISH RATE %</div></div>
+    <div class="stat-card c5"><div class="stat-num" id="sAvgRisk">--</div><div class="stat-lbl">AVG RISK SCORE</div></div>
+  </div>
+
+  <div class="section-title">// TOP THREAT URLS</div>
+  <div class="threats-table">
+    <div class="threats-header">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;">HIGHEST RISK DETECTIONS</span>
+    </div>
+    <div id="topThreats"></div>
+  </div>
+
+  <div class="section-title">// FULL SCAN LOG</div>
+  <div class="filter-row">
+    <select class="filter-select" id="filterPred" onchange="loadLogs()">
+      <option value="">All Predictions</option>
+      <option value="PHISHING">Phishing Only</option>
+      <option value="LEGITIMATE">Legitimate Only</option>
+    </select>
+    <select class="filter-select" id="filterLevel" onchange="loadLogs()">
+      <option value="">All Risk Levels</option>
+      <option value="Critical">Critical</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+      <option value="Safe">Safe</option>
+    </select>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);" id="logCount"></span>
+  </div>
+
+  <div class="log-table-wrap">
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>ID</th><th>URL</th><th>PREDICTION</th><th>SOURCE</th>
+          <th>RISK SCORE</th><th>RISK LEVEL</th><th>CONFIDENCE</th><th>TIMESTAMP</th>
+        </tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <div class="page-info" id="pageInfo">Showing 0–0 of 0</div>
+      <div class="page-btns">
+        <button class="page-btn" id="btnPrev" onclick="changePage(-1)" disabled>◀ PREV</button>
+        <button class="page-btn" id="btnNext" onclick="changePage(1)" disabled>NEXT ▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentPage = 0;
+  const pageSize  = 20;
+
+  async function loadAll() {
+    await Promise.all([loadApiHealth(), loadHealth(), loadStats(), loadLogs()]);
+  }
+
+  async function loadApiHealth() {
+    try {
+      const r = await fetch('/api/admin/api-health');
+      const d = await r.json();
+
+      const cards = [
+        {
+          key: 'ml_model', name: 'ML MODEL',
+          status: d.ml_model?.status,
+          details: [
+            ['Accuracy',  d.ml_model?.metrics?.accuracy  ?? 'N/A'],
+            ['F1-Score',  d.ml_model?.metrics?.f1_score  ?? 'N/A'],
+            ['ROC-AUC',   d.ml_model?.metrics?.roc_auc   ?? 'N/A'],
+          ]
+        },
+        {
+          key: 'safe_browsing', name: 'GOOGLE SAFE BROWSING',
+          status: d.safe_browsing?.status,
+          details: [
+            ['Enabled',  d.safe_browsing?.enabled ? '✅' : '❌'],
+            ['API Key',  d.safe_browsing?.key_set ? '✅ Set' : '❌ Missing'],
+          ]
+        },
+        {
+          key: 'virustotal', name: 'VIRUSTOTAL (SMART)',
+          status: d.virustotal?.status,
+          details: [
+            ['Enabled',      d.virustotal?.enabled ? '✅' : '❌'],
+            ['API Key',      d.virustotal?.key_set ? '✅ Set' : '❌ Missing'],
+            ['Threshold',    d.virustotal?.threshold ?? '0.7'],
+            ['Cache Entries', d.virustotal?.cache_entries ?? 0],
+          ]
+        },
+        {
+          key: 'shap_explainer', name: 'SHAP EXPLAINER',
+          status: d.shap_explainer?.status,
+          details: [
+            ['XAI Ready', d.shap_explainer?.status === 'online' ? '✅ Yes' : '❌ No'],
+          ]
+        },
+        {
+          key: 'rule_engine', name: 'RULE ENGINE',
+          status: d.rule_engine?.status,
+          details: [
+            ['Status', '✅ Active'],
+            ['Rules',  'Critical + High + Medium'],
+          ]
+        },
+      ];
+
+      document.getElementById('apiGrid').innerHTML = cards.map(c => {
+        const online = c.status === 'online';
+        return `
+          <div class="api-card ${online?'online':'offline'}">
+            <div class="api-head">
+              <div class="api-name">${c.name}</div>
+              <div class="api-status ${online?'online':'offline'}">${(c.status||'unknown').toUpperCase()}</div>
+            </div>
+            ${c.details.map(([k,v]) => `
+              <div class="api-detail"><span>${k}</span><span>${v}</span></div>
+            `).join('')}
+          </div>`;
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadHealth() {
+    try {
+      const r = await fetch('/api/health');
+      const d = await r.json();
+      document.getElementById('modulesGrid').innerHTML = (d.modules || []).map(m => `
+        <div class="module-item">
+          <div class="module-dot"></div>
+          <div class="module-name">${m}</div>
+        </div>`).join('');
+    } catch(e) {}
+  }
+
+  async function loadStats() {
+    try {
+      const r = await fetch('/api/admin/stats');
+      const d = await r.json();
+      document.getElementById('sTotal').textContent    = d.total_scans ?? '--';
+      document.getElementById('sPhishing').textContent = d.phishing_count ?? '--';
+      document.getElementById('sLegit').textContent    = d.legitimate_count ?? '--';
+      document.getElementById('sRate').textContent     = (d.phishing_rate ?? '--') + '%';
+      document.getElementById('sAvgRisk').textContent  = d.average_risk ?? '--';
+
+      const threats = d.top_threats || [];
+      document.getElementById('topThreats').innerHTML = threats.length
+        ? threats.map(t => `
+            <div class="threat-row">
+              <div class="threat-url" title="${t.url}">${t.url}</div>
+              <div class="threat-score" style="color:${riskColour(t.risk_score)}">${t.risk_score?.toFixed(1)}</div>
+              <div class="threat-badge">PHISHING</div>
+            </div>`).join('')
+        : '<div style="padding:1.5rem;text-align:center;color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:0.75rem;">No phishing detections yet.</div>';
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadLogs() {
+    try {
+      const pred  = document.getElementById('filterPred').value;
+      const level = document.getElementById('filterLevel').value;
+      const offset = currentPage * pageSize;
+
+      let url = `/api/admin/logs?limit=${pageSize}&offset=${offset}`;
+      if (pred)  url += `&prediction=${pred}`;
+      if (level) url += `&risk_level=${level}`;
+
+      const r = await fetch(url);
+      const d = await r.json();
+      const logs = d.logs || [];
+
+      document.getElementById('logCount').textContent = `${logs.length} records`;
+      const start = offset + 1;
+      const end   = offset + logs.length;
+      document.getElementById('pageInfo').textContent = `Showing ${start}–${end} of results`;
+      document.getElementById('btnPrev').disabled = currentPage === 0;
+      document.getElementById('btnNext').disabled = logs.length < pageSize;
+
+      document.getElementById('logBody').innerHTML = logs.length
+        ? logs.map(l => `
+            <tr>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);">${l.id}</td>
+              <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);" title="${l.url}">${l.url}</td>
+              <td><span class="pred-badge ${l.prediction||'UNKNOWN'}">${l.prediction||'UNKNOWN'}</span></td>
+              <td>${l.verdict_source ? `<span class="src-pill ${l.verdict_source}">${l.verdict_source.replace('_',' ')}</span>` : '<span style="color:var(--text-dim);font-size:0.65rem;">--</span>'}</td>
+              <td style="font-family:'Share Tech Mono',monospace;color:${riskColour(l.risk_score)};">${l.risk_score?.toFixed(1)??'--'}</td>
+              <td><span class="level-pill level-${l.risk_level||'Safe'}">${l.risk_level||'--'}</span></td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;">${l.confidence?Math.round(l.confidence*100)+'%':'--'}</td>
+              <td style="color:var(--text-dim);font-size:0.75rem;">${l.timestamp?.substring(0,19)||'--'}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:2rem;font-family:\'Share Tech Mono\',monospace;font-size:0.75rem;">NO LOG DATA AVAILABLE</td></tr>';
+    } catch(e) { console.error(e); }
+  }
+
+  function changePage(dir) {
+    currentPage = Math.max(0, currentPage + dir);
+    loadLogs();
+  }
+
+  async function exportLogs() {
+    try {
+      const r    = await fetch('/api/admin/export');
+      const data = await r.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `phishguard_export_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Export complete');
+    } catch(e) { showToast('Export failed: ' + e.message); }
+  }
+
+  async function clearVtCache() {
+    if (!confirm('Clear VirusTotal cache? Next scans will re-query VT (counts against quota).')) return;
+    try {
+      const r = await fetch('/api/admin/clear-cache', { method: 'POST' });
+      const d = await r.json();
+      showToast(`Removed ${d.removed} cache entries`);
+      loadApiHealth();
+    } catch(e) { showToast('Cache clear failed'); }
+  }
+
+  function riskColour(score) {
+    if (!score) return 'var(--text-dim)';
+    if (score >= 75) return '#f43f5e';
+    if (score >= 55) return '#fb923c';
+    if (score >= 35) return '#fbbf24';
+    return 'var(--accent3)';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

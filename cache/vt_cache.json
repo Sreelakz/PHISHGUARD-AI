@@ -1,0 +1,392 @@
+{
+  "ece9d2789f3015644b4707d1619a68c7": {
+    "url": "http://malware.testing.google.test/testing/malware/",
+    "timestamp": 1776679211.6305742,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 1,
+      "suspicious_count": 0,
+      "harmless_count": 60,
+      "undetected_count": 9,
+      "total_engines": 70,
+      "detection_ratio": "1/70",
+      "threat_categories": [
+        "malware"
+      ],
+      "scan_date": "2019-07-12 22:37:46",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL21hbHdhcmUudGVzdGluZy5nb29nbGUudGVzdC90ZXN0aW5nL21hbHdhcmUv",
+      "message": "\u26a0\ufe0f 1 malicious + 0 suspicious out of 70"
+    }
+  },
+  "5f96b936d0dca76810b6f55356b46ae1": {
+    "url": "https://www.github.com",
+    "timestamp": 1776679213.6208742,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 60,
+      "undetected_count": 31,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-18 23:21:52",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "af45a22f9460e4a8481c3e693aeb34e0": {
+    "url": "http://login-facebook-security-check.ga",
+    "timestamp": 1776764460.0206583,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2xvZ2luLWZhY2Vib29rLXNlY3VyaXR5LWNoZWNrLmdh",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "099236d61dcd8446243fc791aaeae01b": {
+    "url": "http://google.com.verify-login.ru",
+    "timestamp": 1777380853.8271554,
+    "result": {
+      "status": "completed",
+      "is_malicious": true,
+      "malicious_count": 3,
+      "suspicious_count": 0,
+      "harmless_count": 56,
+      "undetected_count": 32,
+      "total_engines": 91,
+      "detection_ratio": "3/91",
+      "threat_categories": [
+        "malware",
+        "phishing"
+      ],
+      "scan_date": "2026-04-21 20:41:59",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2dvb2dsZS5jb20udmVyaWZ5LWxvZ2luLnJ1",
+      "message": "\ud83d\udea8 3/91 engines flagged this URL as malicious"
+    }
+  },
+  "10afc980cf03e07da583e2bce1b98d5d": {
+    "url": "http://paypal.com.secure-login.xyz",
+    "timestamp": 1776764523.5989385,
+    "result": {
+      "status": "completed",
+      "is_malicious": true,
+      "malicious_count": 9,
+      "suspicious_count": 1,
+      "harmless_count": 53,
+      "undetected_count": 32,
+      "total_engines": 95,
+      "detection_ratio": "9/95",
+      "threat_categories": [
+        "malicious",
+        "phishing",
+        "suspicious"
+      ],
+      "scan_date": "2026-03-28 04:10:07",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL3BheXBhbC5jb20uc2VjdXJlLWxvZ2luLnh5eg",
+      "message": "\ud83d\udea8 9/95 engines flagged this URL as malicious"
+    }
+  },
+  "2afbf9060007722ca1f991544d136873": {
+    "url": "http://amazon.login.account.security-check.net",
+    "timestamp": 1777381574.9995272,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 58,
+      "undetected_count": 33,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-21 20:43:00",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2FtYXpvbi5sb2dpbi5hY2NvdW50LnNlY3VyaXR5LWNoZWNrLm5ldA",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "da24095aa731d10ba8ea7a8accdfc174": {
+    "url": "http://facebook.com-login-security-check.org",
+    "timestamp": 1776957667.0250044,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 57,
+      "undetected_count": 34,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-21 20:43:34",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2ZhY2Vib29rLmNvbS1sb2dpbi1zZWN1cml0eS1jaGVjay5vcmc",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "df4ec70963f9458a91f917af1d704135": {
+    "url": "http://apple.com.verify-update.info",
+    "timestamp": 1777207385.9767928,
+    "result": {
+      "status": "completed",
+      "is_malicious": true,
+      "malicious_count": 3,
+      "suspicious_count": 0,
+      "harmless_count": 55,
+      "undetected_count": 33,
+      "total_engines": 91,
+      "detection_ratio": "3/91",
+      "threat_categories": [
+        "malicious",
+        "phishing"
+      ],
+      "scan_date": "2026-04-21 20:44:08",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2FwcGxlLmNvbS52ZXJpZnktdXBkYXRlLmluZm8",
+      "message": "\ud83d\udea8 3/91 engines flagged this URL as malicious"
+    }
+  },
+  "b932beb2ad739a50173cd1e50b23f882": {
+    "url": "http://apple-id-verification-alert.com",
+    "timestamp": 1777258543.7010252,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 56,
+      "undetected_count": 35,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-23 20:52:54",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2FwcGxlLWlkLXZlcmlmaWNhdGlvbi1hbGVydC5jb20",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "ad03b5cd8c08ecd8596e43dc25e1de15": {
+    "url": "http://example-login-check.com",
+    "timestamp": 1777208693.931969,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 60,
+      "undetected_count": 35,
+      "total_engines": 95,
+      "detection_ratio": "0/95",
+      "threat_categories": [],
+      "scan_date": "2026-04-12 08:10:53",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2V4YW1wbGUtbG9naW4tY2hlY2suY29t",
+      "message": "\u2705 Clean \u2014 95 engines scanned, none flagged"
+    }
+  },
+  "6220bf974434467d865925d8c8444f14": {
+    "url": "http://micr0soft-account-security-alert.net",
+    "timestamp": 1777258676.720783,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 58,
+      "undetected_count": 33,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-23 21:27:58",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL21pY3Iwc29mdC1hY2NvdW50LXNlY3VyaXR5LWFsZXJ0Lm5ldA",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "6eac080ec23661f7b49e4732892705d0": {
+    "url": "http://secure-dropbox-login-warning.net",
+    "timestamp": 1776962809.6860645,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL3NlY3VyZS1kcm9wYm94LWxvZ2luLXdhcm5pbmcubmV0",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "479d3a74504739664e0ef2e13b9df305": {
+    "url": "http://verify-your-paypal-account-now.com",
+    "timestamp": 1777206552.8497186,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL3ZlcmlmeS15b3VyLXBheXBhbC1hY2NvdW50LW5vdy5jb20",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "946fea9d69224e227380ac34563a5caa": {
+    "url": "https://bankofamerica-login-secure-check.xyz",
+    "timestamp": 1777208231.668742,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cHM6Ly9iYW5rb2ZhbWVyaWNhLWxvZ2luLXNlY3VyZS1jaGVjay54eXo",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "c5dbc5ee4a5137d7324eab849f07a279": {
+    "url": "http://secure-update-info.net",
+    "timestamp": 1777208698.8566487,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 57,
+      "undetected_count": 9,
+      "total_engines": 66,
+      "detection_ratio": "0/66",
+      "threat_categories": [],
+      "scan_date": "2019-04-09 14:01:36",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL3NlY3VyZS11cGRhdGUtaW5mby5uZXQ",
+      "message": "\u2705 Clean \u2014 66 engines scanned, none flagged"
+    }
+  },
+  "9ea85972244239a97ec246cbbea53065": {
+    "url": "http://account-verify-test.com",
+    "timestamp": 1777208753.2333302,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 56,
+      "undetected_count": 35,
+      "total_engines": 91,
+      "detection_ratio": "0/91",
+      "threat_categories": [],
+      "scan_date": "2026-04-26 18:35:05",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2FjY291bnQtdmVyaWZ5LXRlc3QuY29t",
+      "message": "\u2705 Clean \u2014 91 engines scanned, none flagged"
+    }
+  },
+  "4a11c54b0d35531d41b39d50093dad77": {
+    "url": "https://microsoft.com.secure-auth-check.net",
+    "timestamp": 1777209761.6666389,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cHM6Ly9taWNyb3NvZnQuY29tLnNlY3VyZS1hdXRoLWNoZWNrLm5ldA",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "be3227c1de936c5f7a88334cf3ea2389": {
+    "url": "http://bankofamerica-login-secure-check.xyz",
+    "timestamp": 1777210511.4369159,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL2JhbmtvZmFtZXJpY2EtbG9naW4tc2VjdXJlLWNoZWNrLnh5eg",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "8eecaeb579b309857efc72b59e750724": {
+    "url": "http://paypal-verification-secure.net/signin",
+    "timestamp": 1777258622.650375,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL3BheXBhbC12ZXJpZmljYXRpb24tc2VjdXJlLm5ldC9zaWduaW4",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "a2b2cfd6ddba88c3abe46e86a5c1b102": {
+    "url": "http://netflix-account-security-check.xyz",
+    "timestamp": 1777258737.845719,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cDovL25ldGZsaXgtYWNjb3VudC1zZWN1cml0eS1jaGVjay54eXo",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  },
+  "cad075a6cc7a996c828a13b106ff74bc": {
+    "url": "https://amazon.com.verify-login-alert.co",
+    "timestamp": 1777384539.112118,
+    "result": {
+      "status": "completed",
+      "is_malicious": false,
+      "malicious_count": 0,
+      "suspicious_count": 0,
+      "harmless_count": 0,
+      "undetected_count": 0,
+      "total_engines": 0,
+      "detection_ratio": "0/0",
+      "threat_categories": [],
+      "scan_date": "Unknown",
+      "permalink": "https://www.virustotal.com/gui/url/aHR0cHM6Ly9hbWF6b24uY29tLnZlcmlmeS1sb2dpbi1hbGVydC5jbw",
+      "message": "\u2705 Clean \u2014 0 engines scanned, none flagged"
+    }
+  }
+}

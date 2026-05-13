@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard AI — Real-Time Phishing Detection</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    /* ── New palette (violet / rose / lime) ── */
+    --bg:#0b0b14;        /* deep slate-black            */
+    --bg2:#13131f;       /* card surface                */
+    --bg3:#1a1a2a;       /* elevated surface            */
+    --accent:#a855f7;    /* electric violet  (primary)  */
+    --accent2:#f43f5e;   /* rose             (danger)   */
+    --accent3:#bef264;   /* acid lime        (success)  */
+    --warn:#fbbf24;      /* amber                       */
+    --purple:#c084fc;    /* light violet (tertiary)     */
+    --text:#e2e8f0;      /* slate-200                   */
+    --text-dim:#64748b;  /* slate-500                   */
+    --border:rgba(168,85,247,0.18);
+    --glow:0 0 20px rgba(168,85,247,0.35);
+    --glow-red:0 0 20px rgba(244,63,94,0.4);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(11,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  .nav-logo{font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--accent);letter-spacing:2px;text-shadow:var(--glow);}
+  .nav-logo span{color:var(--accent2);}
+  .nav-links{display:flex;gap:2rem;}
+  .nav-links a{color:var(--text-dim);text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;transition:color 0.2s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--accent);}
+  .nav-status{display:flex;align-items:center;gap:0.5rem;font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent3);}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 2rem 4rem;text-align:center;}
+  .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 1rem;border:1px solid rgba(168,85,247,0.35);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:3px;margin-bottom:2rem;background:rgba(168,85,247,0.06);}
+  .hero-badge::before{content:'▶';font-size:0.5rem;}
+  h1{font-family:'Rajdhani',sans-serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:700;line-height:1.05;letter-spacing:-1px;margin-bottom:1.5rem;}
+  h1 .line1{display:block;color:var(--text);}
+  h1 .line2{display:block;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero-sub{max-width:580px;color:var(--text-dim);font-size:1rem;line-height:1.7;margin-bottom:2rem;}
+
+  /* ── Mode toggle ── */
+  .mode-toggle{display:flex;gap:0;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:3px;overflow:hidden;background:var(--bg2);}
+  .mode-btn{padding:0.5rem 1.25rem;background:transparent;border:none;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .mode-btn.active{background:var(--accent);color:var(--bg);}
+
+  /* ── Scanner card ── */
+  .scanner-card{position:relative;width:100%;max-width:700px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:2rem;margin-bottom:2rem;}
+  .scanner-card::before{content:'';position:absolute;top:-1px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+  .scanner-label{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:0.75rem;}
+  .input-row{display:flex;gap:0.75rem;align-items:stretch;}
+  #urlInput,#batchInput{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:0.9rem 1.2rem;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.9rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+  #batchInput{min-height:120px;resize:vertical;width:100%;display:block;}
+  #urlInput:focus,#batchInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(168,85,247,0.12);}
+  #urlInput::placeholder,#batchInput::placeholder{color:var(--text-dim);}
+  .scan-btn{padding:0.9rem 2rem;background:var(--accent);color:var(--bg);border:none;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .scan-btn:hover{background:#b968f9;box-shadow:var(--glow);transform:translateY(-1px);}
+  .scan-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+  /* ── Options row ── */
+  .options-row{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;}
+  .option-toggle{display:flex;align-items:center;gap:0.4rem;font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;cursor:pointer;}
+  .option-toggle input{accent-color:var(--accent);}
+
+  /* ── Loading ── */
+  .scan-progress{display:none;margin-top:1.5rem;}
+  .scan-progress.active{display:block;}
+  .progress-label{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.5rem;display:flex;justify-content:space-between;}
+  .progress-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));width:0%;transition:width 0.4s ease;border-radius:2px;}
+  .scan-steps{margin-top:1rem;display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;}
+  .step{padding:0.4rem 0.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--text-dim);letter-spacing:1px;text-align:center;transition:all 0.3s;}
+  .step.active{color:var(--accent);border-color:var(--accent);background:rgba(168,85,247,0.07);}
+  .step.done{color:var(--accent3);border-color:rgba(190,242,100,0.35);}
+
+  /* ── Result panel ── */
+  #resultPanel{display:none;width:100%;max-width:900px;margin-top:2rem;}
+  #resultPanel.show{display:block;animation:slideUp 0.4s ease;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+  .result-header{display:flex;align-items:center;gap:1rem;padding:1.5rem 2rem;border-radius:4px 4px 0 0;border:1px solid var(--border);background:var(--bg2);border-bottom:none;position:relative;}
+  .result-header.phishing{border-color:rgba(244,63,94,0.45);background:linear-gradient(135deg,rgba(244,63,94,0.08),var(--bg2));}
+  .result-header.legitimate{border-color:rgba(190,242,100,0.4);background:linear-gradient(135deg,rgba(190,242,100,0.06),var(--bg2));}
+  .verdict-icon{font-size:2.5rem;line-height:1;}
+  .verdict-text h2{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:1px;}
+  .verdict-text h2.phishing{color:var(--accent2);}
+  .verdict-text h2.legitimate{color:var(--accent3);}
+  .verdict-text p{color:var(--text-dim);font-size:0.85rem;margin-top:0.2rem;}
+
+  .source-badge{position:absolute;top:1rem;right:1rem;padding:0.25rem 0.6rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:1px;border:1px solid;}
+  .source-ml{background:rgba(168,85,247,0.12);color:var(--accent);border-color:rgba(168,85,247,0.4);}
+  .source-safe_browsing{background:rgba(244,63,94,0.12);color:var(--accent2);border-color:rgba(244,63,94,0.4);}
+  .source-rule_engine{background:rgba(251,191,36,0.12);color:var(--warn);border-color:rgba(251,191,36,0.4);}
+  .source-virustotal{background:rgba(192,132,252,0.12);color:var(--purple);border-color:rgba(192,132,252,0.4);}
+
+  .risk-gauge-wrap{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
+  .risk-gauge-label{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:2px;}
+  .risk-score-big{font-family:'Rajdhani',sans-serif;font-size:3rem;font-weight:700;line-height:1;}
+  .risk-score-big.critical{color:#f43f5e;text-shadow:0 0 20px rgba(244,63,94,0.5);}
+  .risk-score-big.high{color:#fb923c;text-shadow:0 0 20px rgba(251,146,60,0.5);}
+  .risk-score-big.medium{color:#fbbf24;}
+  .risk-score-big.low{color:var(--accent);}
+  .risk-score-big.safe{color:var(--accent3);}
+
+  /* ── Tabs ── */
+  .result-tabs{display:flex;border-left:1px solid var(--border);border-right:1px solid var(--border);background:var(--bg3);overflow-x:auto;}
+  .tab-btn{padding:0.75rem 1.25rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(168,85,247,0.06);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;padding:1.5rem 2rem;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;}
+
+  /* ── Indicators ── */
+  .indicators-list{display:flex;flex-direction:column;gap:0.6rem;}
+  .indicator-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 1rem;background:var(--bg3);border:1px solid transparent;border-radius:3px;border-left-width:3px;}
+  .indicator-item.critical{border-left-color:#f43f5e;}
+  .indicator-item.high{border-left-color:#fb923c;}
+  .indicator-item.medium{border-left-color:#fbbf24;}
+  .indicator-item.low{border-left-color:var(--accent);}
+  .sev-badge{font-family:'Share Tech Mono',monospace;font-size:0.6rem;padding:0.2rem 0.5rem;border-radius:2px;letter-spacing:1px;white-space:nowrap;flex-shrink:0;}
+  .sev-badge.critical{background:rgba(244,63,94,0.18);color:#fda4af;}
+  .sev-badge.high{background:rgba(251,146,60,0.18);color:#fdba74;}
+  .sev-badge.medium{background:rgba(251,191,36,0.18);color:#fcd34d;}
+  .sev-badge.low{background:rgba(168,85,247,0.12);color:var(--accent);}
+  .cat-badge{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);padding:0.2rem 0.5rem;border:1px solid var(--border);border-radius:2px;flex-shrink:0;}
+  .indicator-msg{font-size:0.85rem;color:var(--text);line-height:1.5;}
+
+  /* ── Narrative ── */
+  .narrative-box{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1.25rem 1.5rem;border-radius:0 3px 3px 0;font-size:0.9rem;line-height:1.7;color:var(--text);margin-bottom:1.25rem;}
+  .narrative-box strong{color:var(--accent2);}
+
+  .category-scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.75rem;}
+  .cat-score-item{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:0.75rem;text-align:center;}
+  .cat-score-name{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:1px;margin-bottom:0.4rem;}
+  .cat-score-val{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;}
+  .cat-bar{height:3px;background:var(--bg2);border-radius:2px;margin-top:0.4rem;overflow:hidden;}
+  .cat-bar-fill{height:100%;border-radius:2px;transition:width 0.8s ease;}
+
+  /* ── Features ── */
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem;}
+  .feat-item{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;}
+  .feat-key{color:var(--text-dim);}
+  .feat-val{color:var(--accent);}
+  .feat-val.bad{color:var(--accent2);}
+  .feat-val.good{color:var(--accent3);}
+
+  /* ── Threat Intel cards ── */
+  .ti-card{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1.25rem;margin-bottom:1rem;}
+  .ti-card.sb{border-left:3px solid var(--accent);}
+  .ti-card.vt{border-left:3px solid var(--purple);}
+  .ti-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .ti-title{font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--text);letter-spacing:2px;display:flex;align-items:center;gap:0.5rem;}
+  .ti-status-pill{padding:0.25rem 0.7rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:1px;}
+  .ti-status-pill.safe,.ti-status-pill.completed{background:rgba(190,242,100,0.14);color:var(--accent3);border:1px solid rgba(190,242,100,0.35);}
+  .ti-status-pill.unsafe,.ti-status-pill.malicious{background:rgba(244,63,94,0.14);color:var(--accent2);border:1px solid rgba(244,63,94,0.35);}
+  .ti-status-pill.skipped{background:rgba(100,116,139,0.18);color:var(--text-dim);border:1px solid var(--border);}
+  .ti-status-pill.cached{background:rgba(168,85,247,0.12);color:var(--accent);border:1px solid rgba(168,85,247,0.35);}
+  .ti-status-pill.disabled,.ti-status-pill.error{background:rgba(251,191,36,0.14);color:var(--warn);border:1px solid rgba(251,191,36,0.35);}
+  .ti-message{font-size:0.85rem;color:var(--text);line-height:1.6;margin-bottom:1rem;}
+
+  /* VT donut */
+  .vt-grid{display:grid;grid-template-columns:140px 1fr;gap:1.5rem;align-items:center;}
+  .vt-donut-wrap{position:relative;width:140px;height:140px;}
+  .vt-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+  .vt-donut-num{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent2);line-height:1;}
+  .vt-donut-lbl{font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--text-dim);letter-spacing:1px;margin-top:0.2rem;}
+  .vt-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+  .vt-stat{display:flex;justify-content:space-between;padding:0.4rem 0.6rem;background:var(--bg2);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;}
+  .vt-stat-lbl{color:var(--text-dim);}
+  .vt-stat-val{color:var(--text);font-weight:700;}
+  .threat-chips{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.75rem;}
+  .threat-chip{padding:0.2rem 0.5rem;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.35);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#fda4af;}
+  .vt-link{display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.75rem;padding:0.4rem 0.8rem;background:transparent;border:1px solid var(--purple);border-radius:2px;color:var(--purple);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:1px;transition:all 0.2s;}
+  .vt-link:hover{background:rgba(192,132,252,0.1);box-shadow:0 0 12px rgba(192,132,252,0.3);}
+
+  /* ── SHAP ── */
+  .shap-card{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1.5rem;margin-bottom:1rem;}
+  .shap-chart-wrap{position:relative;height:320px;}
+  .shap-info{display:flex;align-items:flex-start;gap:0.5rem;margin-top:1rem;padding:0.75rem;background:rgba(168,85,247,0.04);border-left:2px solid var(--accent);font-size:0.8rem;color:var(--text-dim);line-height:1.5;}
+
+  /* ── Timings ── */
+  .timings-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:0.4rem;margin-top:1rem;padding:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:3px;}
+  .timing-item{text-align:center;}
+  .timing-val{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--accent);}
+  .timing-lbl{font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--text-dim);letter-spacing:1px;margin-top:0.2rem;}
+
+  /* ── Batch ── */
+  .batch-grid{display:flex;flex-direction:column;gap:0.5rem;}
+  .batch-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:0.75rem;align-items:center;padding:0.75rem 1rem;background:var(--bg3);border:1px solid var(--border);border-radius:3px;border-left-width:3px;}
+  .batch-row.PHISHING{border-left-color:var(--accent2);}
+  .batch-row.LEGITIMATE{border-left-color:var(--accent3);}
+  .batch-row.ERROR{border-left-color:var(--warn);}
+  .batch-idx{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);}
+  .batch-url{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .batch-conf{font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);}
+
+  /* ── Action buttons ── */
+  .action-container{display:flex;justify-content:center;gap:1.25rem;margin-top:1.5rem;flex-wrap:wrap;}
+
+  .download-btn{
+    padding:0.75rem 1.5rem;
+    background:linear-gradient(90deg,var(--accent),var(--accent3));
+    color:var(--bg);border:none;border-radius:3px;
+    font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;
+    letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+    transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;
+  }
+  .download-btn:hover{box-shadow:var(--glow);transform:translateY(-1px);}
+  .download-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+  .report-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:transparent;border:1px solid rgba(244,63,94,0.45);border-radius:3px;color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .report-btn:hover{background:rgba(244,63,94,0.1);box-shadow:var(--glow-red);}
+
+  /* ── Stats strip ── */
+  .stats-strip{display:flex;gap:2rem;justify-content:center;margin-top:3rem;padding:1.5rem 2rem;border-top:1px solid var(--border);width:100%;max-width:700px;}
+  .stat-item{text-align:center;}
+  .stat-num{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--accent);}
+  .stat-lbl{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:2px;}
+
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:2rem;right:2rem;padding:0.75rem 1.5rem;background:var(--bg2);border:1px solid var(--accent3);border-radius:3px;color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:0.75rem;letter-spacing:1px;transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:200;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.25);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PHISH<span>GUARD</span>.AI</div>
+  <div class="nav-links">
+    <a href="/" class="active">Scanner</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/admin">Admin</a>
+  </div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    SYSTEM ONLINE
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">AI-POWERED THREAT DETECTION v4.1</div>
+  <h1>
+    <span class="line1">Detect Phishing.</span>
+    <span class="line2">Instantly.</span>
+  </h1>
+  <p class="hero-sub">
+    7-stage pipeline: URL analysis → ML → Rules → Google Safe Browsing → VirusTotal (70+ engines) → SHAP XAI
+  </p>
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('single',this)">⊙ SINGLE URL</button>
+    <button class="mode-btn" onclick="setMode('batch',this)">⫴ BATCH SCAN</button>
+  </div>
+
+  <div class="scanner-card">
+    <h2 style="color:var(--accent);margin-bottom:1.5rem;">Phishing URL Scanner</h2>
+
+    <!-- Single URL mode -->
+    <div id="singleMode">
+      <div class="input-row">
+        <input
+          type="text"
+          id="urlInput"
+          placeholder="https://example.com"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="scan-btn" id="scanBtn" onclick="startScan()">SCAN</button>
+      </div>
+    </div>
+
+    <!-- Batch mode -->
+    <div id="batchMode" style="display:none;">
+      <textarea
+        id="batchInput"
+        placeholder="Paste URLs, one per line (max 50)&#10;https://example.com&#10;https://another.com"
+      ></textarea>
+      <div style="margin-top:0.75rem;text-align:right;">
+        <button class="scan-btn" onclick="startBatchScan()">⫴ SCAN BATCH</button>
+      </div>
+    </div>
+
+    <!-- Shared options -->
+    <div class="options-row">
+      <label class="option-toggle">
+        <input type="checkbox" id="optHtml" checked> FETCH HTML
+      </label>
+      <label class="option-toggle">
+        <input type="checkbox" id="optVt" checked> VIRUSTOTAL
+      </label>
+    </div>
+
+    <!-- Progress -->
+    <div class="scan-progress" id="scanProgress">
+      <div class="progress-label">
+        <span id="progressLabel">INITIALIZING SCAN...</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="scan-steps">
+        <div class="step" id="step1">URL + HTML</div>
+        <div class="step" id="step2">AUX INTEL</div>
+        <div class="step" id="step3">RULES + ML</div>
+        <div class="step" id="step4">SAFE BROWSING</div>
+        <div class="step" id="step5">VIRUSTOTAL</div>
+        <div class="step" id="step6">SHAP XAI</div>
+        <div class="step" id="step7">RISK CALC</div>
+        <div class="step" id="step8">VERDICT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result panel -->
+  <div id="resultPanel">
+
+    <div class="result-header" id="resultHeader">
+      <div class="verdict-icon" id="verdictIcon"></div>
+      <div class="verdict-text">
+        <h2 id="verdictTitle"></h2>
+        <p id="verdictSub"></p>
+      </div>
+      <div class="source-badge" id="sourceBadge"></div>
+      <div class="risk-gauge-wrap">
+        <div class="risk-gauge-label">RISK SCORE</div>
+        <div class="risk-score-big" id="riskScoreBig">--</div>
+        <div class="risk-gauge-label" id="riskLevel">--</div>
+      </div>
+    </div>
+
+    <div class="result-tabs">
+      <button class="tab-btn active" onclick="showTab('explain',event)">⚡ EXPLANATION</button>
+      <button class="tab-btn" onclick="showTab('threat',event)">🛡 THREAT INTEL</button>
+      <button class="tab-btn" onclick="showTab('shap',event)">🧠 SHAP XAI</button>
+      <button class="tab-btn" onclick="showTab('features',event)">🔬 FEATURES</button>
+      <button class="tab-btn" onclick="showTab('details',event)">📋 DETAILS</button>
+    </div>
+
+    <!-- Tab: Explanation -->
+    <div class="tab-content active" id="tab-explain">
+      <div class="narrative-box" id="aiNarrative"></div>
+
+      <div style="margin-bottom:1rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">// CATEGORY RISK SCORES</div>
+        <div class="category-scores" id="categoryScores"></div>
+      </div>
+
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">// THREAT INDICATORS</div>
+        <div class="indicators-list" id="indicatorsList"></div>
+      </div>
+
+      <div class="timings-strip" id="timingsStrip"></div>
+
+      <div id="explanationSection" style="display:none;margin-top:1.25rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">// EXPLANATION</div>
+        <div class="narrative-box" id="explanationText"></div>
+      </div>
+
+      <div id="simpleIndicatorsSection" style="display:none;margin-top:1.25rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">// THREAT INDICATORS</div>
+        <div id="simpleIndicatorsList"></div>
+      </div>
+
+      <div id="shapExplanationSection" style="display:none;margin-top:1.25rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">// MODEL EXPLANATION (TOP FACTORS)</div>
+        <ul id="shapExplanationList" style="list-style:none;padding:0;"></ul>
+      </div>
+
+      <div class="action-container" id="actionButtons" style="display:none;">
+        <button class="download-btn" id="downloadBtn" onclick="downloadReport()">
+          📄 Download Report
+        </button>
+        <button class="report-btn" type="button" onclick="submitReport()">
+          🚩 Report as Phishing
+        </button>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-threat">
+      <div id="threatIntelContent"></div>
+    </div>
+
+    <div class="tab-content" id="tab-shap">
+      <div id="shapContent"></div>
+    </div>
+
+    <div class="tab-content" id="tab-features">
+      <div class="features-grid" id="featuresGrid"></div>
+    </div>
+
+    <div class="tab-content" id="tab-details">
+      <div id="detailsContent"></div>
+    </div>
+
+  </div>
+
+  <div id="batchResultPanel" style="display:none;width:100%;max-width:900px;margin-top:2rem;">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);letter-spacing:2px;">// BATCH SCAN RESULTS</div>
+        <div id="batchSummary" style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);"></div>
+      </div>
+      <div class="batch-grid" id="batchGrid"></div>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">TOTAL SCANS</div></div>
+    <div class="stat-item"><div class="stat-num" id="statPhishing">0</div><div class="stat-lbl">PHISHING FOUND</div></div>
+    <div class="stat-item"><div class="stat-num" id="statRate">0%</div><div class="stat-lbl">DETECTION RATE</div></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  'use strict';
+
+  let currentUrl = '';
+  let currentMode = 'single';
+  let shapChart = null;
+  let vtDonut = null;
+
+  function setMode(mode, btn) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('singleMode').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('batchMode').style.display  = mode === 'batch'  ? 'block' : 'none';
+    document.getElementById('resultPanel').classList.remove('show');
+    document.getElementById('resultPanel').style.display = 'none';
+    document.getElementById('batchResultPanel').style.display = 'none';
+  }
+
+  function setProgress(label, pct) {
+    document.getElementById('progressLabel').textContent = label;
+    document.getElementById('progressPct').textContent   = pct + '%';
+    document.getElementById('progressFill').style.width  = pct + '%';
+  }
+
+  function resetSteps() {
+    for (let i = 1; i <= 8; i++) {
+      const el = document.getElementById('step' + i);
+      if (el) el.classList.remove('active', 'done');
+    }
+    setProgress('INITIALIZING SCAN...', 0);
+  }
+
+  async function startScan() {
+    const input = document.getElementById('urlInput');
+    const url   = input.value.trim();
+    if (!url) { showToast('Please enter a URL'); return; }
+
+    currentUrl = url;
+    document.getElementById('scanBtn').disabled = true;
+
+    const panel = document.getElementById('resultPanel');
+    panel.classList.remove('show');
+    panel.style.display = 'none';
+
+    const progress = document.getElementById('scanProgress');
+    progress.classList.add('active');
+    resetSteps();
+
+    const steps = [
+      { id:'step1', label:'EXTRACTING FEATURES + HTML...',              pct:12 },
+      { id:'step2', label:'AUXILIARY INTEL (SSL, WHOIS, HOMOGRAPH)...', pct:28 },
+      { id:'step3', label:'RULE ENGINE + ML ENSEMBLE...',               pct:44 },
+      { id:'step4', label:'GOOGLE SAFE BROWSING...',                    pct:58 },
+      { id:'step5', label:'VIRUSTOTAL (70+ ENGINES)...',                pct:74 },
+      { id:'step6', label:'SHAP EXPLAINABLE AI...',                     pct:86 },
+      { id:'step7', label:'RISK CALCULATION...',                        pct:94 },
+      { id:'step8', label:'ASSEMBLING VERDICT...',                      pct:99 },
+    ];
+
+    let idx = 0;
+    const iv = setInterval(() => {
+      if (idx < steps.length) {
+        const s = steps[idx];
+        document.getElementById(s.id).classList.add('active');
+        setProgress(s.label, s.pct);
+        if (idx > 0) document.getElementById(steps[idx - 1].id).classList.add('done');
+        idx++;
+      }
+    }, 350);
+
+    try {
+      const resp = await fetch('/api/analyze', {
+        method:  'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          url,
+          enable_html:       document.getElementById('optHtml').checked,
+          enable_virustotal: document.getElementById('optVt').checked,
+        }),
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+
+      clearInterval(iv);
+      steps.forEach(s => {
+        document.getElementById(s.id).classList.add('done');
+        document.getElementById(s.id).classList.remove('active');
+      });
+      setProgress('SCAN COMPLETE', 100);
+
+      setTimeout(() => {
+        progress.classList.remove('active');
+        resetSteps();
+        renderResult(data);
+        document.getElementById('scanBtn').disabled = false;
+      }, 500);
+
+    } catch (err) {
+      clearInterval(iv);
+      progress.classList.remove('active');
+      resetSteps();
+      showToast('Error: ' + err.message);
+      document.getElementById('scanBtn').disabled = false;
+    }
+  }
+
+  async function startBatchScan() {
+    const text = document.getElementById('batchInput').value.trim();
+    if (!text) { showToast('Paste URLs first'); return; }
+    const urls = text.split('\n').map(u => u.trim()).filter(Boolean);
+    if (!urls.length) { showToast('No valid URLs'); return; }
+    if (urls.length > 50) { showToast('Max 50 URLs per batch'); return; }
+
+    const progress = document.getElementById('scanProgress');
+    progress.classList.add('active');
+    setProgress(`SCANNING ${urls.length} URLS...`, 50);
+
+    try {
+      const resp = await fetch('/api/analyze/batch', {
+        method:  'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          urls,
+          enable_html:       document.getElementById('optHtml').checked,
+          enable_virustotal: document.getElementById('optVt').checked,
+        }),
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+
+      progress.classList.remove('active');
+      resetSteps();
+      renderBatchResults(data.results || []);
+
+    } catch (err) {
+      progress.classList.remove('active');
+      showToast('Batch error: ' + err.message);
+    }
+  }
+
+  function renderBatchResults(results) {
+    const panel   = document.getElementById('batchResultPanel');
+    const phCount = results.filter(r => r.verdict === 'PHISHING').length;
+    const lgCount = results.filter(r => r.verdict === 'LEGITIMATE').length;
+
+    document.getElementById('batchSummary').textContent =
+      `${results.length} scanned · ${phCount} PHISHING · ${lgCount} LEGITIMATE`;
+
+    document.getElementById('batchGrid').innerHTML = results.map((r, i) => `
+      <div class="batch-row ${r.verdict || 'ERROR'}">
+        <div class="batch-idx">#${i + 1}</div>
+        <div class="batch-url" title="${r.url || ''}">${r.url || '(no url)'}</div>
+        <div class="batch-conf">${r.confidence != null ? Math.round(r.confidence * 100) + '%' : '--'}</div>
+        <div><span class="sev-badge ${r.verdict === 'PHISHING' ? 'high' : 'low'}">${r.verdict || 'ERROR'}</span></div>
+      </div>`).join('');
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderResult(data) {
+    if (data.error) { showToast('Error: ' + data.error); return; }
+
+    const isPhishing = data.prediction === 'PHISHING';
+    const riskClass  = (data.risk_level || 'safe').toLowerCase();
+
+    const header = document.getElementById('resultHeader');
+    header.className = 'result-header ' + (isPhishing ? 'phishing' : 'legitimate');
+    document.getElementById('verdictIcon').textContent = isPhishing ? '⛔' : '✅';
+
+    const vt = document.getElementById('verdictTitle');
+    vt.textContent = isPhishing ? 'PHISHING DETECTED' : 'LEGITIMATE SITE';
+    vt.className   = isPhishing ? 'phishing' : 'legitimate';
+    document.getElementById('verdictSub').textContent =
+      'Confidence: ' + Math.round((data.confidence || 0) * 100) + '%';
+
+    const src = (data.verdict_source || 'ml').replace(/[^a-z_]/g, '');
+    const sb  = document.getElementById('sourceBadge');
+    sb.className   = 'source-badge source-' + src;
+    sb.textContent = 'SRC: ' + src.replace(/_/g, ' ').toUpperCase();
+
+    const rsb = document.getElementById('riskScoreBig');
+    rsb.textContent = Math.round(data.risk_score || 0);
+    rsb.className   = 'risk-score-big ' + riskClass;
+    document.getElementById('riskLevel').textContent = (data.risk_level || '').toUpperCase();
+
+    document.getElementById('aiNarrative').innerHTML =
+      data.explanations?.ai_narrative || data.verdict_reason || 'No narrative available.';
+
+    const catScores = data.explanations?.category_scores || {};
+    const catColors = { URL:'#a855f7', Domain:'#f43f5e', SSL:'#fbbf24', HTML:'#c084fc', Visual:'#bef264' };
+    document.getElementById('categoryScores').innerHTML =
+      Object.entries(catScores).map(([k, v]) => `
+        <div class="cat-score-item">
+          <div class="cat-score-name">${k}</div>
+          <div class="cat-score-val" style="color:${catColors[k] || 'var(--accent)'};">${v}</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width:${v}%;background:${catColors[k] || 'var(--accent)'}"></div></div>
+        </div>`).join('');
+
+    const detailedIndicators = data.explanations?.indicators || [];
+    const threatMsg = data.threat_message || '';
+    document.getElementById('indicatorsList').innerHTML = detailedIndicators.length
+      ? detailedIndicators.map(ind => `
+          <div class="indicator-item ${ind.severity || 'low'}">
+            <span class="sev-badge ${ind.severity || 'low'}">${(ind.severity || 'info').toUpperCase()}</span>
+            <span class="cat-badge">${ind.category || '--'}</span>
+            <span class="indicator-msg">${ind.message || ''}</span>
+          </div>`).join('')
+      : `<p style="color:${isPhishing ? '#fda4af' : '#bef264'};font-family:'Share Tech Mono',monospace;font-size:0.8rem;line-height:1.6;">${threatMsg || (isPhishing ? '⚠️ Threat detected' : '✓ No significant indicators detected')}</p>`;
+
+    const timings = data.timings_ms || {};
+    document.getElementById('timingsStrip').innerHTML =
+      Object.entries(timings).map(([k, v]) => `
+        <div class="timing-item">
+          <div class="timing-val">${v}<span style="font-size:0.6rem;color:var(--text-dim);">ms</span></div>
+          <div class="timing-lbl">${k.replace('_ms', '').replace(/_/g, ' ')}</div>
+        </div>`).join('');
+
+    const explanationSection = document.getElementById('explanationSection');
+    const explanationText    = document.getElementById('explanationText');
+    if (data.explanation) {
+      explanationText.textContent    = data.explanation;
+      explanationSection.style.display = 'block';
+    } else {
+      explanationSection.style.display = 'none';
+    }
+
+    const simpleIndicators        = data.indicators || [];
+    const simpleIndicatorsSection = document.getElementById('simpleIndicatorsSection');
+    const simpleList              = document.getElementById('simpleIndicatorsList');
+    if (simpleIndicators.length) {
+      simpleList.innerHTML = `<ul style="list-style:none;padding:0;margin:0;">
+        ${simpleIndicators.map(item => `
+          <li style="padding:0.5rem 0.75rem;margin-bottom:0.4rem;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:3px;font-size:0.85rem;color:var(--text);font-family:'Share Tech Mono',monospace;">
+            ⚠️ ${item}
+          </li>`).join('')}
+      </ul>`;
+    } else {
+      simpleList.innerHTML = `<p style="color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:0.8rem;">✓ No significant indicators detected</p>`;
+    }
+    simpleIndicatorsSection.style.display = 'block';
+
+    const shapSection = document.getElementById('shapExplanationSection');
+    const shapList    = document.getElementById('shapExplanationList');
+    const shapExpl    = data.shap_explanation || [];
+    if (shapExpl.length) {
+      shapList.innerHTML = shapExpl.slice(0, 5).map(item => `
+        <li style="padding:0.5rem 0.75rem;margin-bottom:0.4rem;background:var(--bg3);border:1px solid var(--border);border-left:3px solid ${(item.shap_value || 0) > 0 ? 'var(--accent2)' : 'var(--accent3)'};border-radius:3px;font-size:0.85rem;color:var(--text);font-family:'Share Tech Mono',monospace;">
+          <strong style="color:${(item.shap_value || 0) > 0 ? 'var(--accent2)' : 'var(--accent3)'};">${item.feature}</strong>
+          → ${(item.shap_value || 0) > 0 ? '<span style="color:var(--accent2);">increases</span>' : '<span style="color:var(--accent3);">reduces</span>'} phishing risk
+          <span style="color:var(--text-dim);margin-left:0.5rem;">(${(item.shap_value || 0) > 0 ? '+' : ''}${Number(item.shap_value || 0).toFixed(3)})</span>
+        </li>`).join('');
+      shapSection.style.display = 'block';
+    } else {
+      shapSection.style.display = 'none';
+    }
+
+    renderThreatIntel(data);
+    renderShap(data);
+
+    const feats     = data.features || {};
+    const flatFeats = flattenFeatures(feats);
+    document.getElementById('featuresGrid').innerHTML =
+      Object.entries(flatFeats).map(([k, v]) => {
+        const isBad  = (k.startsWith('has_') && v === 1) || (k === 'uses_https' && v === 0);
+        const isGood = (k === 'uses_https' && v === 1)   || (k.startsWith('has_') && v === 0 && !k.includes('num'));
+        return `<div class="feat-item">
+          <span class="feat-key">${k}</span>
+          <span class="feat-val ${isBad ? 'bad' : isGood ? 'good' : ''}">${v}</span>
+        </div>`;
+      }).join('');
+
+    const ssl   = feats.ssl_info       || {};
+    const dom   = feats.domain_info    || {};
+    const redir = feats.redirect_info  || {};
+    const hom   = feats.homograph_info || {};
+    document.getElementById('detailsContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        ${detailCard('SSL / HTTPS', [
+          ['Uses HTTPS', ssl.uses_https          ? '✅ Yes' : '❌ No'],
+          ['Cert Valid', ssl.certificate_valid   ? '✅ Yes' : '❌ No'],
+          ['Issuer',     ssl.issuer              || 'N/A'],
+          ['Grade',      ssl.grade               || 'N/A'],
+          ['Days Left',  ssl.days_until_expiry   ?? 'N/A'],
+        ])}
+        ${detailCard('DOMAIN INTEL', [
+          ['Domain',     dom.domain              || 'N/A'],
+          ['Age (days)', dom.domain_age_days     ?? 'N/A'],
+          ['Registered', dom.is_registered       ? '✅ Yes' : '❌ No'],
+          ['Registrar',  dom.registrar           || 'N/A'],
+          ['Country',    dom.country             || 'N/A'],
+        ])}
+        ${detailCard('REDIRECTS', [
+          ['Has Redirects',  redir.has_redirects         ? 'Yes' : 'No'],
+          ['Redirect Count', redir.redirect_count        ?? 0],
+          ['Cross-Domain',   redir.cross_domain_redirects ?? 0],
+          ['Suspicious',     redir.suspicious_redirect   ? '⚠️ Yes' : '✅ No'],
+          ['Final URL',      ((redir.final_url || '').substring(0, 35) || 'N/A') + '...'],
+        ])}
+        ${detailCard('HOMOGRAPH', [
+          ['Is Homograph',  hom.is_homograph    ? '⚠️ Yes' : '✅ No'],
+          ['Matched Brand', hom.matched_brand   || 'None'],
+          ['Similarity',    hom.similarity_score || 0],
+          ['Technique',     hom.technique        || 'None'],
+        ])}
+      </div>`;
+
+    document.getElementById('actionButtons').style.display = 'flex';
+
+    const resultPanel = document.getElementById('resultPanel');
+    resultPanel.style.display = 'block';
+    resultPanel.classList.add('show');
+    resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    showTab('explain');
+    loadStats();
+  }
+
+  function renderThreatIntel(data) {
+    const sb = data.safe_browsing || {};
+    const vt = data.virustotal   || {};
+
+    let html = '';
+
+    const sbStatus = sb.status || 'error';
+    html += `
+      <div class="ti-card sb">
+        <div class="ti-header">
+          <div class="ti-title">🔵 GOOGLE SAFE BROWSING</div>
+          <div class="ti-status-pill ${sbStatus}">${sbStatus.toUpperCase()}</div>
+        </div>
+        <div class="ti-message">${sb.message || 'No data available.'}</div>
+        ${sb.threat_types && sb.threat_types.length ? `
+          <div class="threat-chips">
+            ${sb.threat_types.map(t => `<span class="threat-chip">${t.replace(/_/g, ' ')}</span>`).join('')}
+          </div>` : ''}
+      </div>`;
+
+    const vtStatus = vt.status || 'unknown';
+    const vtLabel  = vt.is_malicious ? 'malicious' : (vtStatus === 'completed' ? 'completed' : vtStatus);
+    html += `<div class="ti-card vt">
+      <div class="ti-header">
+        <div class="ti-title">🟣 VIRUSTOTAL (70+ ENGINES)</div>
+        <div class="ti-status-pill ${vtLabel}">${vtStatus.toUpperCase()}</div>
+      </div>
+      <div class="ti-message">${vt.message || 'No data available.'}</div>`;
+
+    if (vtStatus === 'completed' || vtStatus === 'cached') {
+      html += `
+        <div class="vt-grid">
+          <div class="vt-donut-wrap">
+            <canvas id="vtDonutCanvas" width="140" height="140"></canvas>
+            <div class="vt-donut-center">
+              <div class="vt-donut-num" style="color:${vt.is_malicious ? 'var(--accent2)' : 'var(--accent3)'};">${vt.detection_ratio || '0/0'}</div>
+              <div class="vt-donut-lbl">DETECTION</div>
+            </div>
+          </div>
+          <div class="vt-stats-grid">
+            <div class="vt-stat"><span class="vt-stat-lbl">Malicious</span><span class="vt-stat-val" style="color:var(--accent2);">${vt.malicious_count || 0}</span></div>
+            <div class="vt-stat"><span class="vt-stat-lbl">Suspicious</span><span class="vt-stat-val" style="color:var(--warn);">${vt.suspicious_count || 0}</span></div>
+            <div class="vt-stat"><span class="vt-stat-lbl">Harmless</span><span class="vt-stat-val" style="color:var(--accent3);">${vt.harmless_count || 0}</span></div>
+            <div class="vt-stat"><span class="vt-stat-lbl">Undetected</span><span class="vt-stat-val">${vt.undetected_count || 0}</span></div>
+            <div class="vt-stat"><span class="vt-stat-lbl">Total Engines</span><span class="vt-stat-val">${vt.total_engines || 0}</span></div>
+            <div class="vt-stat"><span class="vt-stat-lbl">Scan Date</span><span class="vt-stat-val" style="font-size:0.6rem;">${vt.scan_date || '--'}</span></div>
+          </div>
+        </div>`;
+      if (vt.threat_categories && vt.threat_categories.length) {
+        html += `<div style="margin-top:1rem;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:1px;margin-bottom:0.4rem;">THREAT CATEGORIES:</div>
+          <div class="threat-chips">${vt.threat_categories.map(c => `<span class="threat-chip">${c}</span>`).join('')}</div>
+        </div>`;
+      }
+      if (vt.permalink) {
+        html += `<a href="${vt.permalink}" target="_blank" rel="noopener" class="vt-link">↗ VIEW FULL REPORT ON VIRUSTOTAL</a>`;
+      }
+
+      setTimeout(() => {
+        const canvas = document.getElementById('vtDonutCanvas');
+        if (canvas) {
+          if (vtDonut) vtDonut.destroy();
+          vtDonut = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+              labels: ['Malicious', 'Suspicious', 'Harmless', 'Undetected'],
+              datasets: [{
+                data: [vt.malicious_count || 0, vt.suspicious_count || 0,
+                       vt.harmless_count  || 0, vt.undetected_count  || 0],
+                backgroundColor: ['#f43f5e', '#fbbf24', '#bef264', '#334155'],
+                borderColor: '#13131f', borderWidth: 2,
+              }],
+            },
+            options: {
+              responsive: false, maintainAspectRatio: false, cutout: '70%',
+              plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            },
+          });
+        }
+      }, 50);
+
+    } else if (vtStatus === 'skipped') {
+      html += `<div style="padding:1rem;background:rgba(168,85,247,0.04);border-left:2px solid var(--accent);font-size:0.8rem;color:var(--text-dim);line-height:1.6;">
+        💡 <strong style="color:var(--accent);">Smart Gate Active:</strong>
+        VirusTotal was skipped to preserve API quota. It only runs when ML confidence exceeds the threshold (default 0.7).
+      </div>`;
+    }
+
+    html += '</div>';
+    document.getElementById('threatIntelContent').innerHTML = html;
+  }
+
+  function renderShap(data) {
+    const shapExplanation = data.shap_explanation || [];
+    const container       = document.getElementById('shapContent');
+
+    if (!shapExplanation.length) {
+      container.innerHTML = `
+        <div class="shap-card">
+          <div class="shap-info">
+            <span>ℹ️</span>
+            <div>SHAP explanation not available for this scan. This may occur when the ML model is not trained or when the rule engine issued an early verdict.</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="shap-card">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);letter-spacing:2px;margin-bottom:1rem;">
+          // TOP FEATURE CONTRIBUTIONS (SHAP VALUES)
+        </div>
+        <div class="shap-chart-wrap"><canvas id="shapCanvas"></canvas></div>
+        <div class="shap-info">
+          <span>💡</span>
+          <div>
+            <strong style="color:var(--accent);">How to read this:</strong>
+            <span style="color:var(--accent2);">Red bars push TOWARD phishing</span> ·
+            <span style="color:var(--accent3);">Green bars push AWAY from phishing</span>.
+            Longer bars = stronger impact on the verdict.
+          </div>
+        </div>
+      </div>`;
+
+    setTimeout(() => {
+      const canvas = document.getElementById('shapCanvas');
+      if (!canvas) return;
+      if (shapChart) shapChart.destroy();
+
+      const features = shapExplanation.slice(0, 10);
+      const labels   = features.map(f => f.feature);
+      const values   = features.map(f => f.shap_value);
+      const colors   = values.map(v => v > 0 ? 'rgba(244,63,94,0.8)' : 'rgba(190,242,100,0.8)');
+      const borders  = values.map(v => v > 0 ? '#f43f5e' : '#bef264');
+
+      shapChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors,
+            borderColor:     borders,
+            borderWidth:     1,
+          }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text:   'SHAP Value (impact on phishing prediction)',
+                color:  '#64748b',
+                font:   { family: 'Share Tech Mono', size: 10 },
+              },
+              grid:  { color: 'rgba(168,85,247,0.06)' },
+              ticks: { color: '#64748b', font: { family: 'Share Tech Mono', size: 10 } },
+            },
+            y: {
+              grid:  { color: 'rgba(168,85,247,0.06)' },
+              ticks: { color: '#e2e8f0', font: { family: 'Share Tech Mono', size: 10 } },
+            },
+          },
+        },
+      });
+    }, 50);
+  }
+
+  async function downloadReport() {
+    const btn = document.getElementById('downloadBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating…';
+
+    try {
+      const resp = await fetch('/download_report', {
+        method: 'POST',
+        credentials: 'same-origin',          // send session cookie
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})              // send empty JSON body
+      });
+
+      if (!resp.ok) {
+        // Try to parse error as JSON; if it's HTML/text, fall back gracefully
+        let errMsg = `HTTP ${resp.status}`;
+        try {
+          const err = await resp.json();
+          errMsg = err.error || errMsg;
+        } catch (_) {
+          const txt = await resp.text();
+          errMsg = txt.substring(0, 200) || errMsg;
+        }
+        throw new Error(errMsg);
+      }
+
+      // Verify we actually got a PDF, not an error HTML page
+      const contentType = resp.headers.get('Content-Type') || '';
+      if (!contentType.includes('pdf')) {
+        throw new Error('Server did not return a PDF (got: ' + contentType + ')');
+      }
+
+      const blob = await resp.blob();
+      if (blob.size === 0) {
+        throw new Error('Empty PDF received from server');
+      }
+
+      const blobUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = blobUrl;
+      anchor.download = 'phishguard_report.pdf';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      showToast('Report downloaded!');
+
+    } catch (e) {
+      console.error('Download error:', e);
+      showToast('Download failed: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📄 Download Report';
+    }
+  }
+
+  function detailCard(title, rows) {
+    return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1rem;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.75rem;">${title}</div>
+      ${rows.map(([k, v]) => `
+        <div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid rgba(168,85,247,0.06);font-size:0.78rem;">
+          <span style="color:var(--text-dim);">${k}</span>
+          <span style="color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.7rem;">${v}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  function flattenFeatures(f) {
+    const skip = ['ssl_info', 'domain_info', 'redirect_info', 'homograph_info', 'visual_analysis'];
+    const out  = {};
+    for (const [k, v] of Object.entries(f)) {
+      if (!skip.includes(k) && typeof v !== 'object') out[k] = v;
+    }
+    return out;
+  }
+
+  function showTab(name, ev) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    const tab = document.getElementById('tab-' + name);
+    if (tab) tab.classList.add('active');
+    if (ev && ev.target) ev.target.classList.add('active');
+  }
+
+  async function submitReport() {
+    if (!currentUrl) return;
+    try {
+      const resp = await fetch('/api/report', {
+        method:  'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ url: currentUrl, reason: 'User report' }),
+      });
+      if (resp.ok) {
+        showToast('Report submitted. Thank you!');
+      } else {
+        showToast('Report submission failed.');
+      }
+    } catch (e) {
+      showToast('Report failed: ' + e.message);
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const r = await fetch('/api/admin/stats');
+      const d = await r.json();
+      document.getElementById('statTotal').textContent    = d.total_scans    || 0;
+      document.getElementById('statPhishing').textContent = d.phishing_count || 0;
+      document.getElementById('statRate').textContent     = (d.phishing_rate  || 0) + '%';
+    } catch (e) { /* stats are non-critical */ }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlInput = document.getElementById('urlInput');
+    if (urlInput) {
+      urlInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') startScan();
+      });
+    }
+    loadStats();
+  });
+</script>
+</body>
+</html>

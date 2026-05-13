@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environments
+.env
+venv/
+.venv/
+
+# Models & data
+*.pkl
+models/*.pkl
+database/*.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep these
+!models/.gitkeep
+!database/.gitkeep
+!data/.gitkeep
